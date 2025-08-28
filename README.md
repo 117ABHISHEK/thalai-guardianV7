@@ -27,40 +27,40 @@ A comprehensive Thalassemia management and blood donation platform built with th
 ### Setup Instructions
 
 1. **Clone the repository**
-   \`\`\`bash
+   ```bash
    git clone <repository-url>
    cd thalai-guardian
-   \`\`\`
+   ```
 
 2. **Install dependencies**
-   \`\`\`bash
+   ```bash
    npm run install-all
-   \`\`\`
+   ```
 
 3. **Environment Setup**
    - Copy `server/.env.example` to `server/.env`
    - Update the environment variables:
-     \`\`\`
+     ```
      NODE_ENV=development
      PORT=5000
      MONGODB_URI=mongodb://localhost:27017/thalai-guardian
      JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-     \`\`\`
+     ```
 
 4. **Start MongoDB**
    - Make sure MongoDB is running on your system
    - Default connection: `mongodb://localhost:27017/thalai-guardian`
 
 5. **Run the application**
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
    
    This will start both the server (port 5000) and client (port 3000) concurrently.
 
 ## Project Structure
 
-\`\`\`
+```
 thalai-guardian/
 ├── client/                 # React frontend
 │   ├── public/
@@ -77,7 +77,7 @@ thalai-guardian/
 │   ├── server.js          # Entry point
 │   └── package.json
 └── package.json           # Root package.json
-\`\`\`
+```
 
 ## API Endpoints
 
@@ -114,25 +114,25 @@ thalai-guardian/
 ### Running Individual Services
 
 **Server only:**
-\`\`\`bash
+```bash
 npm run server
-\`\`\`
+```
 
 **Client only:**
-\`\`\`bash
+```bash
 npm run client
-\`\`\`
+```
 
 ### Environment Variables
 
 Create a `.env` file in the `server` directory with:
 
-\`\`\`env
+```env
 NODE_ENV=development
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/thalai-guardian
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-\`\`\`
+```
 
 ## Contributing
 
