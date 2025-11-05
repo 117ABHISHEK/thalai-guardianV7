@@ -87,12 +87,12 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 bg-purple-50 rounded-lg">
-              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white text-2xl">⚙️</span>
+            <div className="text-center p-6 bg-teal-50 rounded-lg">
+              <div className="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl">🏥</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">For Admins</h3>
-              <p className="text-gray-600">Manage the platform, oversee users, and ensure smooth operations.</p>
+              <h3 className="text-xl font-semibold mb-2">For Hospitals</h3>
+              <p className="text-gray-600">Manage blood inventory, run donation camps, and support patients.</p>
             </div>
           </div>
         </div>

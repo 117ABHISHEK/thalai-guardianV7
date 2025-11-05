@@ -142,9 +142,8 @@ router.put("/:id/status", authMiddleware, async (req, res) => {
     const isPatient = req.user.role === "patient" && bloodRequest.patient._id.toString() === req.user.id
     const isDonor = req.user.role === "donor" && bloodRequest.donor && bloodRequest.donor._id.toString() === req.user.id
     const isDoctor = req.user.role === "doctor"
-    const isAdmin = req.user.role === "admin"
 
-    if (!isPatient && !isDonor && !isDoctor && !isAdmin) {
+    if (!isPatient && !isDonor && !isDoctor) {
       return res.status(403).json({ message: "Not authorized to update this request" })
     }
 
@@ -177,8 +176,8 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Blood request not found" })
     }
 
-    // Only patient who created it or admin can delete
-    if (req.user.role !== "admin" && bloodRequest.patient.toString() !== req.user.id) {
+    // Only patient who created it can delete
+    if (bloodRequest.patient.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized to delete this request" })
     }
 

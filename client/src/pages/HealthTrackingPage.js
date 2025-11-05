@@ -17,7 +17,7 @@ const HealthTrackingPage = () => {
   const [activeTab, setActiveTab] = useState(user?.role === "patient" ? "add-record" : "view-records")
 
   useEffect(() => {
-    if (user?.role === "doctor" || user?.role === "admin") {
+    if (user?.role === "doctor") {
       fetchPatients()
     }
     fetchRecords()
@@ -86,7 +86,7 @@ const HealthTrackingPage = () => {
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Health Tracking</h1>
 
       {/* Patient Selection for Doctors */}
-      {(user?.role === "doctor" || user?.role === "admin") && (
+      {(user?.role === "doctor") && (
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">Select Patient:</label>
           <select

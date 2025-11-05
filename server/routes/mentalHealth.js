@@ -150,11 +150,12 @@ router.get("/counselors/:id", authMiddleware, async (req, res) => {
   }
 })
 
-// Register new counselor (admin only)
+// Register new counselor (doctors or hospital owners)
 router.post("/counselors", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only admins can register counselors" })
+    // Allow doctors or hospitals to register counselors
+    if (req.user.role !== "doctor" && req.user.role !== "hospital") {
+      return res.status(403).json({ message: "Only doctors or hospital owners can register counselors" })
     }
 
     const { name, email, phone, specializations, qualifications, experience, bio, availability } = req.body
@@ -271,11 +272,11 @@ router.put("/appointments/:id/status", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" })
     }
 
-    // Check permissions
+    // Check permissions: patient who booked or counselor/doctor who owns the appointment
     const isPatient = req.user.role === "patient" && appointment.patient.toString() === req.user.id
-    const isAdmin = req.user.role === "admin"
+    const isCounselor = (req.user.role === "doctor" || req.user.role === "hospital") && appointment.counselor && appointment.counselor.toString() === req.user.id
 
-    if (!isPatient && !isAdmin) {
+    if (!isPatient && !isCounselor) {
       return res.status(403).json({ message: "Not authorized to update this appointment" })
     }
 

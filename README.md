@@ -5,7 +5,7 @@ A comprehensive Thalassemia management and blood donation platform built with th
 ## Features
 
 - **User Authentication**: JWT-based authentication with role-based access control
-- **Multi-Role System**: Support for patients, donors, doctors, and admins
+-- **Multi-Role System**: Support for patients, donors, doctors, hospitals, and bloodbanks
 - **Role-Based Dashboards**: Customized interfaces for each user type
 - **Secure Backend**: Protected routes with middleware authentication
 - **Modern UI**: Clean and responsive design with TailwindCSS
@@ -91,14 +91,14 @@ thalai-guardian/
 - `GET /api/patient/dashboard` - Patient dashboard data
 - `GET /api/donor/dashboard` - Donor dashboard data
 - `GET /api/doctor/dashboard` - Doctor dashboard data
-- `GET /api/admin/dashboard` - Admin dashboard data
+-- `GET /api/admin/dashboard` - Admin dashboard data (removed)
 
 ## User Roles
 
 1. **Patient**: Track health, view donor requests
 2. **Donor**: View donation history, see blood requests
 3. **Doctor**: Access patient records, manage appointments
-4. **Admin**: Manage all users, view platform statistics
+4. **Hospital / Platform**: Hospital owners manage hospital data; platform-level verification is handled by hospital owners or designated verifiers.
 
 ## Security Features
 

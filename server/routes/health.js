@@ -143,11 +143,11 @@ router.post("/records", authMiddleware, async (req, res) => {
   }
 })
 
-// Update health record (doctors and admins only)
+// Update health record (doctors only)
 router.put("/records/:id", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "doctor" && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only doctors and admins can update health records" })
+    if (req.user.role !== "doctor") {
+      return res.status(403).json({ message: "Only doctors can update health records" })
     }
 
     const healthRecord = await HealthRecord.findById(req.params.id)
@@ -183,8 +183,8 @@ router.put("/records/:id", authMiddleware, async (req, res) => {
 // Get all patients for doctors
 router.get("/patients", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "doctor" && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only doctors and admins can view patient list" })
+    if (req.user.role !== "doctor") {
+      return res.status(403).json({ message: "Only doctors can view patient list" })
     }
 
     const patients = await User.find({ role: "patient" }).select("name email createdAt").sort({ name: 1 })
@@ -195,11 +195,11 @@ router.get("/patients", authMiddleware, async (req, res) => {
   }
 })
 
-// Get emergency records (for doctors and admins)
+// Get emergency records (for doctors only)
 router.get("/emergency", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "doctor" && req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only doctors and admins can view emergency records" })
+    if (req.user.role !== "doctor") {
+      return res.status(403).json({ message: "Only doctors can view emergency records" })
     }
 
     const emergencyRecords = await HealthRecord.find({ isEmergency: true })

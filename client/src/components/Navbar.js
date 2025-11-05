@@ -47,13 +47,11 @@ const Navbar = () => {
           { path: "/hospitals", label: "Manage Hospital" },
           { path: "/blood-requests", label: "Blood Requests" },
         ]
-      case "admin":
+      case "bloodbank":
         return [
           ...commonItems,
-          { path: "/blood-requests", label: "All Requests" },
-          { path: "/health-tracking", label: "All Records" },
-          { path: "/hospitals", label: "All Hospitals" },
-          { path: "/mental-health", label: "All Sessions" },
+          { path: "/hospitals", label: "Manage Bloodbank" },
+          { path: "/blood-requests", label: "Blood Requests" },
         ]
       default:
         return commonItems

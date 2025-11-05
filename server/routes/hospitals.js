@@ -90,7 +90,7 @@ router.post("/register", authMiddleware, async (req, res) => {
   }
 })
 
-// Update hospital (only by registeredBy user or admin)
+// Update hospital (only by registeredBy user)
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const hospital = await Hospital.findById(req.params.id)
@@ -99,8 +99,8 @@ router.put("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Hospital not found" })
     }
 
-    // Check permissions
-    if (req.user.role !== "admin" && hospital.registeredBy.toString() !== req.user.id) {
+    // Check permissions: only hospital owner (registeredBy) may update
+    if (hospital.registeredBy.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized to update this hospital" })
     }
 
@@ -133,8 +133,8 @@ router.put("/:id/inventory", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Hospital not found" })
     }
 
-    // Check permissions
-    if (req.user.role !== "admin" && hospital.registeredBy.toString() !== req.user.id) {
+    // Check permissions: only hospital owner (registeredBy) may update inventory
+    if (hospital.registeredBy.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized to update inventory" })
     }
 
@@ -172,8 +172,8 @@ router.post("/:id/camps", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Hospital not found" })
     }
 
-    // Check permissions
-    if (req.user.role !== "admin" && hospital.registeredBy.toString() !== req.user.id) {
+    // Check permissions: only hospital owner (registeredBy) may add donation camps
+    if (hospital.registeredBy.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized to add donation camps" })
     }
 
@@ -293,17 +293,18 @@ router.get("/camps/upcoming", async (req, res) => {
   }
 })
 
-// Verify hospital (admin only)
+// Verify hospital (hospital owner only)
 router.put("/:id/verify", authMiddleware, async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Only admins can verify hospitals" })
-    }
-
     const hospital = await Hospital.findById(req.params.id)
 
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" })
+    }
+
+    // Only hospital owner can mark their hospital as verified
+    if (hospital.registeredBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized to verify this hospital" })
     }
 
     hospital.isVerified = true

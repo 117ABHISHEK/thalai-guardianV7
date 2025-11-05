@@ -192,7 +192,7 @@ const BloodRequestCard = ({ request, userRole, onRequestUpdate }) => {
           </button>
         )}
 
-        {(userRole === "doctor" || userRole === "admin") && (
+        {(userRole === "doctor" || userRole === "hospital") && (
           <div className="flex gap-2">
             {request.status !== "completed" && (
               <button

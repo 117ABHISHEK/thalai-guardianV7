@@ -26,6 +26,30 @@ const donorProfileSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    regularPatients: [{
+      patient: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      since: {
+        type: Date,
+        default: Date.now,
+      },
+      status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active"
+      },
+      lastDonation: Date,
+      donationCount: {
+        type: Number,
+        default: 0
+      },
+      assignedDoctor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    }],
     donationHistory: [
       {
         patientId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

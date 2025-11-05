@@ -62,6 +62,23 @@ const doctorProfileSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    regularPatients: [{
+      patient: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      since: {
+        type: Date,
+        default: Date.now,
+      },
+      status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active"
+      },
+      lastVisit: Date,
+      notes: String
+    }],
   },
   {
     timestamps: true,

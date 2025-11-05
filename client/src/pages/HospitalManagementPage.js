@@ -114,7 +114,7 @@ const HospitalManagementPage = () => {
         >
           Donation Camps
         </button>
-        {(user?.role === "admin" || user?.role === "doctor") && (
+  {(user?.role === "hospital" || user?.role === "doctor") && (
           <button
             onClick={() => setActiveTab("register")}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
@@ -284,7 +284,7 @@ const HospitalManagementPage = () => {
       )}
 
       {/* Register Hospital Tab */}
-      {activeTab === "register" && (user?.role === "admin" || user?.role === "doctor") && (
+      {activeTab === "register" && (user?.role === "hospital" || user?.role === "doctor") && (
         <HospitalRegistrationForm onHospitalRegistered={handleHospitalRegistered} />
       )}
     </div>

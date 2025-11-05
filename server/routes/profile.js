@@ -11,7 +11,14 @@ const router = express.Router()
 // Get user profile
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password")
+    // Only allow users to view their own profile
+    const userId = req.user._id
+    
+    if (userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "You can only view your own profile" })
+    }
+
+    const user = await User.findById(userId).select("-password")
     let profile = null
 
     // Get role-specific profile
@@ -41,6 +48,11 @@ router.post("/complete", authMiddleware, async (req, res) => {
   try {
     const { basicInfo, roleSpecificData } = req.body
     const userId = req.user._id
+
+    // Only allow users to complete their own profile
+    if (userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "You can only complete your own profile" })
+    }
 
     // Update basic user info
     await User.findByIdAndUpdate(userId, {
@@ -80,6 +92,11 @@ router.put("/", authMiddleware, async (req, res) => {
   try {
     const { basicInfo, roleSpecificData } = req.body
     const userId = req.user._id
+
+    // Only allow users to update their own profile
+    if (userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "You can only update your own profile" })
+    }
 
     // Update basic user info
     if (basicInfo) {
