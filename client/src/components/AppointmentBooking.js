@@ -4,55 +4,50 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 
 const AppointmentBooking = ({ onAppointmentBooked }) => {
-  const [counselors, setCounselors] = useState([])
-  const [selectedCounselor, setSelectedCounselor] = useState("")
+  const [doctors, setDoctors] = useState([])
+  const [hospitals, setHospitals] = useState([])
+  const [selectedHospital, setSelectedHospital] = useState("")
+  const [selectedDoctor, setSelectedDoctor] = useState("")
   const [availableSlots, setAvailableSlots] = useState([])
   const [formData, setFormData] = useState({
     appointmentDate: "",
     startTime: "",
     endTime: "",
-    sessionType: "video",
+    sessionType: "in-person",
     reason: "",
     notes: "",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const [appointmentType, setAppointmentType] = useState("medical") // or "counseling"
-
   useEffect(() => {
     fetchDoctors()
-  }, [appointmentType])
+  }, [])
 
   useEffect(() => {
-    if (selectedCounselor && formData.appointmentDate) {
+    if (selectedDoctor && formData.appointmentDate) {
       fetchAvailableSlots()
     }
-  }, [selectedCounselor, formData.appointmentDate])
+  }, [selectedDoctor, formData.appointmentDate])
 
   const fetchDoctors = async () => {
     try {
-      const response = await axios.get("/api/mental-health/counselors", {
-        withCredentials: true,
-      })
-      
-      // Filter doctors based on type
-      const allProfessionals = response.data
-      const filteredProfessionals = appointmentType === "medical"
-        ? allProfessionals.filter(doc => doc.doctorType === "medical")
-        : allProfessionals.filter(doc => doc.doctorType === "counselor")
-      
-      setCounselors(filteredProfessionals)
+      const response = await axios.get("/api/doctors/available", { withCredentials: true })
+      setDoctors(response.data)
+
+      // extract unique hospitals
+      const uniqueHospitals = [...new Set(response.data.map((d) => d.hospital).filter(Boolean))]
+      setHospitals(uniqueHospitals)
     } catch (error) {
-      console.error("Error fetching medical professionals:", error)
-      setError("Failed to load available doctors. Please try again.")
+      console.error("Error fetching doctors:", error)
+      setError("Failed to load doctors. Please try again.")
     }
   }
 
   const fetchAvailableSlots = async () => {
     try {
       const response = await axios.get(
-        `/api/mental-health/counselors/${selectedCounselor}/availability?date=${formData.appointmentDate}`,
+        `/api/doctors/${selectedDoctor}/availability?date=${formData.appointmentDate}`,
         { withCredentials: true },
       )
       setAvailableSlots(response.data.availableSlots)
@@ -86,16 +81,14 @@ const AppointmentBooking = ({ onAppointmentBooked }) => {
     setError("")
 
     try {
-      const response = await axios.post(
-        "/api/mental-health/appointments",
-        {
-          counselor: selectedCounselor,
-          ...formData,
-        },
-        {
-          withCredentials: true,
-        },
-      )
+      const payload = {
+        doctorId: selectedDoctor,
+        ...formData,
+      }
+
+      const response = await axios.post("/api/doctors/appointments", payload, {
+        withCredentials: true,
+      })
 
       if (onAppointmentBooked) {
         onAppointmentBooked(response.data)
@@ -106,11 +99,10 @@ const AppointmentBooking = ({ onAppointmentBooked }) => {
         appointmentDate: "",
         startTime: "",
         endTime: "",
-        sessionType: "video",
         reason: "",
         notes: "",
       })
-      setSelectedCounselor("")
+      setSelectedDoctor("")
       setAvailableSlots([])
     } catch (error) {
       setError(error.response?.data?.message || "Error booking appointment")
@@ -119,86 +111,72 @@ const AppointmentBooking = ({ onAppointmentBooked }) => {
     }
   }
 
-  const selectedCounselorData = counselors.find((c) => c._id === selectedCounselor)
+  const filteredDoctors = selectedHospital ? doctors.filter((d) => d.hospital === selectedHospital) : doctors
+  const selectedDoctorData = doctors.find((d) => d._id === selectedDoctor)
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold mb-4 text-purple-600">
-        Book {appointmentType === "medical" ? "Doctor" : "Counselor"} Appointment
-      </h3>
+      <h3 className="text-xl font-semibold mb-4 text-purple-600">Book Doctor Appointment</h3>
 
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-4 mb-4">
-          <button
-            type="button"
-            onClick={() => setAppointmentType("medical")}
-            className={`flex-1 py-2 px-4 rounded-md ${
-              appointmentType === "medical"
-                ? "bg-purple-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Medical Doctor
-          </button>
-          <button
-            type="button"
-            onClick={() => setAppointmentType("counseling")}
-            className={`flex-1 py-2 px-4 rounded-md ${
-              appointmentType === "counseling"
-                ? "bg-purple-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            Mental Health Counselor
-          </button>
-        </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Select {appointmentType === "medical" ? "Doctor" : "Counselor"} *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Select Hospital *</label>
           <select
-            value={selectedCounselor}
-            onChange={(e) => setSelectedCounselor(e.target.value)}
+            value={selectedHospital}
+            onChange={(e) => {
+              setSelectedHospital(e.target.value)
+              setSelectedDoctor("")
+            }}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            <option value="">Choose a {appointmentType === "medical" ? "doctor" : "counselor"}...</option>
-            {counselors.map((doctor) => (
-              <option key={doctor._id} value={doctor._id}>
-                {doctor.name} - {doctor.specialization || doctor.specializations?.join(", ")}
+            <option value="">Choose a hospital...</option>
+            {hospitals.map((h) => (
+              <option key={h} value={h}>
+                {h}
               </option>
             ))}
           </select>
         </div>
 
-        {selectedCounselorData && (
+        {selectedHospital && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Doctor *</label>
+            <select
+              value={selectedDoctor}
+              onChange={(e) => setSelectedDoctor(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="">Choose a doctor...</option>
+              {filteredDoctors.map((doctor) => (
+                <option key={doctor._id} value={doctor._id}>
+                  Dr. {doctor.name} - {doctor.specialization}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {selectedDoctorData && (
           <div className="bg-purple-50 p-4 rounded-md">
-            <h4 className="font-medium text-purple-900">{selectedCounselorData.name}</h4>
-            <p className="text-sm text-purple-700 mt-1">
-              {selectedCounselorData.doctorType === "medical" ? "Medical Doctor" : "Mental Health Counselor"}
-            </p>
+            <h4 className="font-medium text-purple-900">Dr. {selectedDoctorData.name}</h4>
             <div className="mt-2">
               <p className="text-sm text-purple-700">
-                <span className="font-medium">Specialization:</span> {selectedCounselorData.specialization}
+                <span className="font-medium">Specialization:</span> {selectedDoctorData.specialization}
               </p>
               <p className="text-sm text-purple-700">
-                <span className="font-medium">Experience:</span> {selectedCounselorData.experience} years
+                <span className="font-medium">Experience:</span> {selectedDoctorData.experience} years
               </p>
-              {selectedCounselorData.hospital && (
+              {selectedDoctorData.hospital && (
                 <p className="text-sm text-purple-700">
-                  <span className="font-medium">Hospital:</span> {selectedCounselorData.hospital}
+                  <span className="font-medium">Hospital:</span> {selectedDoctorData.hospital}
                 </p>
               )}
               <p className="text-sm text-purple-700">
-                <span className="font-medium">Available Days:</span>{" "}
-                {selectedCounselorData.availableDays?.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(", ")}
-              </p>
-              <p className="text-sm text-purple-700">
-                <span className="font-medium">Consultation Hours:</span>{" "}
-                {selectedCounselorData.availableHours?.start} - {selectedCounselorData.availableHours?.end}
+                <span className="font-medium">Consultation Hours:</span> {selectedDoctorData.availableHours?.start} - {selectedDoctorData.availableHours?.end}
               </p>
             </div>
           </div>
@@ -272,12 +250,11 @@ const AppointmentBooking = ({ onAppointmentBooked }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             <option value="">Select a reason...</option>
-            <option value="anxiety">Anxiety and Stress Management</option>
-            <option value="depression">Depression and Mood Support</option>
-            <option value="coping">Coping with Chronic Illness</option>
-            <option value="family">Family and Relationship Issues</option>
-            <option value="grief">Grief and Loss</option>
-            <option value="general">General Mental Health Support</option>
+            <option value="consultation">General Consultation</option>
+            <option value="followup">Follow-up Visit</option>
+            <option value="testresults">Discuss Test Results</option>
+            <option value="prescription">Prescription/Medication</option>
+            <option value="emergency">Emergency</option>
             <option value="other">Other</option>
           </select>
         </div>
@@ -290,13 +267,12 @@ const AppointmentBooking = ({ onAppointmentBooked }) => {
             onChange={handleChange}
             rows="3"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="Any additional information you'd like to share with your counselor..."
+            placeholder="Any specific symptoms or concerns you'd like to mention..."
           />
         </div>
-
         <button
           type="submit"
-          disabled={loading || !selectedCounselor || !formData.appointmentDate || !formData.startTime}
+          disabled={loading || !selectedDoctor || !formData.appointmentDate || !formData.startTime}
           className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
         >
           {loading ? "Booking Appointment..." : "Book Appointment"}

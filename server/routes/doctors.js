@@ -45,9 +45,9 @@ router.get("/:doctorId/availability", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Doctor not found or not accepting appointments" })
     }
 
-    // Get existing appointments for the date
+    // Get existing appointments for the date (appointments reference doctor)
     const existingAppointments = await Appointment.find({
-      counselor: doctorId,
+      doctor: doctorId,
       appointmentDate: new Date(date),
       status: { $nin: ["cancelled"] },
     })
@@ -65,7 +65,7 @@ router.get("/:doctorId/availability", authMiddleware, async (req, res) => {
 // Book an appointment with a doctor
 router.post("/appointments", authMiddleware, async (req, res) => {
   try {
-    const { doctorId, appointmentDate, startTime, endTime, reason, notes } = req.body
+  const { doctorId, appointmentDate, startTime, endTime, reason, notes } = req.body
     const patientId = req.user._id
 
     // Verify doctor exists and is accepting appointments
@@ -80,7 +80,7 @@ router.post("/appointments", authMiddleware, async (req, res) => {
 
     // Check if slot is still available
     const conflictingAppointment = await Appointment.findOne({
-      counselor: doctorId,
+      doctor: doctorId,
       appointmentDate,
       startTime,
       status: { $nin: ["cancelled"] },
@@ -90,10 +90,10 @@ router.post("/appointments", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "This time slot is no longer available" })
     }
 
-    // Create appointment
+    // Create appointment (store doctor reference)
     const appointment = new Appointment({
       patient: patientId,
-      counselor: doctorId,
+      doctor: doctorId,
       appointmentDate,
       startTime,
       endTime,
