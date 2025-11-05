@@ -39,6 +39,16 @@ const BloodRequestCard = ({ request, userRole, onRequestUpdate }) => {
   const handleAcceptRequest = async () => {
     setLoading(true)
     try {
+      // Get donor's blood group first
+      const profileResponse = await axios.get("/api/donor/profile", { withCredentials: true })
+      const donorBloodGroup = profileResponse.data.bloodGroup
+
+      // Check blood group compatibility
+      if (!isBloodCompatible(donorBloodGroup, request.bloodGroup)) {
+        alert("Your blood type is not compatible with this request")
+        return
+      }
+
       const response = await axios.put(
         `/api/requests/${request._id}/accept`,
         {},
@@ -54,6 +64,21 @@ const BloodRequestCard = ({ request, userRole, onRequestUpdate }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Helper function to check blood type compatibility
+  const isBloodCompatible = (donorType, recipientType) => {
+    const compatibility = {
+      "O-": ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"],
+      "O+": ["O+", "A+", "B+", "AB+"],
+      "A-": ["A-", "A+", "AB-", "AB+"],
+      "A+": ["A+", "AB+"],
+      "B-": ["B-", "B+", "AB-", "AB+"],
+      "B+": ["B+", "AB+"],
+      "AB-": ["AB-", "AB+"],
+      "AB+": ["AB+"]
+    }
+    return compatibility[donorType]?.includes(recipientType) || false
   }
 
   const handleStatusUpdate = async (newStatus) => {

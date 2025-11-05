@@ -29,11 +29,14 @@ app.use(
 app.use(express.json())
 app.use(cookieParser())
 
+const doctorsRoutes = require("./routes/doctors")
+
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/patient", patientRoutes)
 app.use("/api/donor", donorRoutes)
 app.use("/api/doctor", doctorRoutes)
+app.use("/api/doctors", doctorsRoutes) // New route for doctor appointments
 app.use("/api/admin", adminRoutes)
 app.use("/api/requests", requestRoutes)
 app.use("/api/health", healthRoutes)

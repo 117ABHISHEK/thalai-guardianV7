@@ -31,14 +31,12 @@ router.post("/register", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
 
+    // Return full user document (excluding password) so client always has latest profile
+    const fullUser = await User.findById(user._id).select("-password")
+
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: fullUser,
     })
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message })
@@ -73,14 +71,12 @@ router.post("/login", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
 
+    // Return full user document (excluding password) so client always has latest profile
+    const fullUser = await User.findById(user._id).select("-password")
+
     res.json({
       message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: fullUser,
     })
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message })

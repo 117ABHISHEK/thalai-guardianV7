@@ -12,6 +12,12 @@ const doctorProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    doctorType: {
+      type: String,
+      enum: ["medical", "counselor"],
+      required: true,
+      default: "medical",
+    },
     licenseId: {
       type: String,
       required: true,
@@ -38,6 +44,23 @@ const doctorProfileSchema = new mongoose.Schema(
     availableHours: {
       start: String, // "09:00"
       end: String, // "17:00"
+    },
+    availableDays: {
+      type: [String],
+      enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+      default: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    },
+    appointmentDuration: {
+      type: Number, // minutes
+      default: 30,
+    },
+    maxDailyAppointments: {
+      type: Number,
+      default: 20,
+    },
+    isAcceptingAppointments: {
+      type: Boolean,
+      default: true,
     },
   },
   {

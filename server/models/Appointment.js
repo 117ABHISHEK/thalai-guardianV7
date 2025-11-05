@@ -7,9 +7,9 @@ const appointmentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    counselor: {
+    doctor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Counselor",
+      ref: "User",  // Reference to User model since doctors are users
       required: true,
     },
     appointmentDate: {

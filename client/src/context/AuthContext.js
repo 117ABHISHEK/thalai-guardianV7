@@ -40,7 +40,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post("/api/auth/login", { email, password })
-      setUser(response.data.user)
+      // After successful login, refresh user data from /me to ensure full profile is loaded
+      await refreshUser()
       return { success: true }
     } catch (error) {
       return {
@@ -58,7 +59,8 @@ export const AuthProvider = ({ children }) => {
         password,
         role,
       })
-      setUser(response.data.user)
+      // After registration, refresh user data from /me to ensure full profile is loaded
+      await refreshUser()
       return { success: true }
     } catch (error) {
       return {
