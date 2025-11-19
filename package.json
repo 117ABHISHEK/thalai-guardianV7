@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "concurrently \"npm:build:css\" \"next dev\"",
     "lint": "next lint",
     "start": "node start.js",
     "install-all": "npm install --legacy-peer-deps && cd server && npm install --legacy-peer-deps && cd ../client && npm install --legacy-peer-deps",
     "server": "cd server && npm start",
-    "client": "cd client && npm start"
+    "client": "cd client && npm start",
+    "build:css":"tailwindcss -i ./styles/tailwind.css -o ./styles/globals.css --watch"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
